@@ -1,4 +1,17 @@
 ---
+- name: Create directory /mnt/usb1
+  file:
+    path: /mnt/usb1
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "u=rwx,g=rx,o="
+
+- name: Mount up device by UUID
+  ansible.posix.mount:
+    path: /mnt/usb1
+    src: UUID=f6112845-7fd4-463c-aa21-c7205bda1952
+    fstype: ext2
+    state: present
 
 - name: Copy K3s service file
   register: k3s_service

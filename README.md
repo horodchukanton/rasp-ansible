@@ -1,3 +1,9 @@
+# DISCLAIMER
+
+This is a fork that has things removed and hardcoded for my personal needs.
+
+Do not expect this to work for you, but feel free to get inspiration.
+
 # Build a Kubernetes cluster using k3s via Ansible
 
 Author: <https://github.com/itwars>

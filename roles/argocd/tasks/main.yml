@@ -1,0 +1,45 @@
+
+- name: Add helm apt repo
+  block:
+  - name: add keyring
+    ansible.builtin.get_url:
+      url: https://baltocdn.com/helm/signing.asc
+      dest: /etc/apt/trusted.gpg.d/baltocdn.asc
+
+  - name: add repo
+    ansible.builtin.apt_repository:
+      repo: deb [signed-by=/etc/apt/trusted.gpg.d/baltocdn.asc] https://baltocdn.com/helm/stable/debian/ all main
+      state: present
+
+- name: Install helm
+  ansible.builtin.apt:
+    name: helm
+    update_cache: yes
+
+- name: Download git repository with ArgoCD deployment
+  ansible.builtin.git:
+    repo: 'https://github.com/horodchukanton/rasp-cluster.git'
+    dest: '{{ argocd_repo_dir }}'
+    single_branch: yes
+    version: master
+
+- name: Install argocd to the K3s
+    name: argocd
+    chart_ref: '{{ argocd_repo_dir }}'
+    release_namespace: argocd
+    wait: True
+
+#- name: Get argocd admin initial password
+#kubectl --namespace argocd get secret argocd-initial-admin-secret -o json | jq -r '.data.password' | base64 -d
+
+- name: Install argocd CLI
+  get_url:
+    url: https://github.com/argoproj/argo-cd/releases/download/latest/argocd-linux-arm64
+    dest: /usr/local/bin/argocd
+    owner: root
+    group: pi
+    mode: 0775
+  when:
+    - ( ansible_facts.architecture is search("arm") and
+        ansible_facts.userspace_bits == "64" ) or
+      ansible_facts.architecture is search("aarch64")
